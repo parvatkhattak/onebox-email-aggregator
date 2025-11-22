@@ -1,8 +1,11 @@
 # Onebox Email Aggregator
 
-A feature-rich email aggregator similar to Reachinbox with real-time IMAP synchronization, AI-powered categorization using Google Gemini, Elasticsearch storage, and a modern React frontend.
+A feature-rich AI-powered email aggregator with real-time IMAP synchronization, Google Gemini AI categorization, Elasticsearch storage, and a modern React frontend.
 
 ![Onebox Email Aggregator](https://img.shields.io/badge/Status-Production%20Ready-green)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
+![React](https://img.shields.io/badge/React-18-61dafb)
+![Node.js](https://img.shields.io/badge/Node.js-18+-green)
 
 ## ✨ Features
 
@@ -13,135 +16,106 @@ A feature-rich email aggregator similar to Reachinbox with real-time IMAP synchr
   - Not Interested
   - Spam
   - Out of Office
-- 💬 **AI Reply Suggestions**: Get intelligent, context-aware reply suggestions
+- 💬 **AI Reply Suggestions**: Context-aware reply generation using RAG (Retrieval-Augmented Generation)
 - 🔍 **Powerful Search**: Elasticsearch-powered search with filters for account, folder, and category
-- 🔔 **Slack Notifications**: Get notified on Slack for "Interested" emails
+- 🔔 **Slack Notifications**: Automatic notifications for "Interested" emails
 - 🪝 **Webhook Integration**: Trigger external automations for interested emails
+- ⚙️ **Frontend Account Management**: Add/remove email accounts directly from the UI
+- 🔧 **Settings UI**: Configure Slack and webhook integrations from the frontend
 - 🎨 **Modern UI**: Beautiful, responsive React frontend with glassmorphism and vibrant gradients
 - 🔐 **Secure**: Encrypted credential storage for email accounts
 
-A feature-rich Onebox email aggregator that synchronizes multiple IMAP accounts in real-time, categorizes emails using AI, and provides a seamless, searchable experience.
-
-## 🚀 Features Implemented
-
-- [x] **Real-Time Email Synchronization**: Syncs multiple IMAP accounts using persistent IDLE connections (no cron jobs). Fetches last 30 days of emails.
-- [x] **Searchable Storage**: Emails are indexed in a locally hosted Elasticsearch instance for instant search.
-- [x] **AI-Based Categorization**: Automatically categorizes emails into "Interested", "Meeting Booked", "Not Interested", "Spam", etc. using Google Gemini.
-- [x] **Slack & Webhook Integration**: Sends notifications to Slack and triggers webhooks for "Interested" emails.
-- [x] **Frontend Interface**: Modern React UI to view emails, filter by account, and search.
-- [x] **AI-Powered Suggested Replies**: Generates context-aware replies using RAG (Retrieval-Augmented Generation) with product knowledge.
-
 ## 🛠️ Architecture
 
-1.  **Backend (Node.js/Express)**:
-    *   `imapService`: Manages persistent IMAP connections using `imapflow`.
-    *   `elasticsearchService`: Handles indexing and searching of emails.
-    *   `aiCategorizer`: Uses Google Gemini to categorize emails and suggest replies.
-    *   `notificationService`: Sends Slack alerts and webhooks.
-2.  **Database**:
-    *   **Elasticsearch**: Stores email content for search.
-    *   **SQLite/JSON**: Stores account credentials (encrypted).
-3.  **Frontend (React/Vite)**:
-    *   Real-time updates via Socket.IO.
-    *   Modern, responsive UI with dark mode.
+```
+┌─────────────────┐      ┌──────────────────┐      ┌─────────────────┐
+│   React UI      │─────▶│  Express Server  │─────▶│  Elasticsearch  │
+│  (Frontend)     │◀─────│   (Backend)      │◀─────│   (Storage)     │
+└─────────────────┘      └──────────────────┘      └─────────────────┘
+         ↕                        │
+    Socket.IO                     ├──────▶ IMAP Servers (Gmail, etc.)
+                                  ├──────▶ Google Gemini AI
+                                  ├──────▶ Slack (Notifications)
+                                  └──────▶ Webhooks (Automation)
+```
 
-## 📦 Setup & Usage
+**Components:**
+- **Backend (Node.js/Express)**: API server with real-time Socket.IO updates
+  - `imapService`: Manages persistent IMAP connections using `imapflow`
+  - `elasticsearchService`: Handles indexing and searching of emails
+  - `aiCategorizer`: Uses Google Gemini for categorization and reply suggestions
+  - `notificationService`: Sends Slack alerts and webhooks
+  - `databaseService`: Manages account credentials with encryption
+  - `settingsService`: Persists integration settings
+- **Database**: Elasticsearch for email storage, JSON files for account/settings data
+- **Frontend (React/Vite)**: Modern SPA with real-time updates
+
+## 📦 Setup & Installation
 
 ### Prerequisites
-- Node.js (v18+)
+
+- Node.js (v18 or higher)
 - Docker (for Elasticsearch)
-- Google Gemini API Key
+- Google Gemini API Key ([Get one here](https://aistudio.google.com/app/apikey))
 
-### Installation
+### Installation Steps
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd onebox-email-aggregator
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/parvatkhattak/onebox-email-aggregator.git
+   cd onebox-email-aggregator
+   ```
 
-2.  **Install dependencies**:
-    ```bash
-    npm install
-    cd frontend && npm install && cd ..
-    ```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   cd frontend && npm install && cd ..
+   ```
 
-3.  **Start Elasticsearch**:
-    ```bash
-    docker-compose up -d
-    ```
+3. **Start Elasticsearch with Docker**:
+   ```bash
+   docker-compose up -d
+   ```
 
-4.  **Configure Environment**:
-    Create a `.env` file in the root directory:
-    ```env
-    GEMINI_API_KEY=your_actual_api_key_here
-    ELASTICSEARCH_URL=http://localhost:9200
-    PORT=3000
-    ```
+4. **Configure Environment Variables**:
+   
+   Create a `.env` file in the root directory:
+   ```env
+   # Server Configuration
+   PORT=3000
+   FRONTEND_URL=http://localhost:5173
 
-5.  **Run the Application**:
-    ```bash
-    npm run dev
-    ```
-    This starts both the backend (port 3000) and frontend (port 5173).
+   # Elasticsearch
+   ELASTICSEARCH_URL=http://localhost:9200
 
-### Using the Features
+   # Google Gemini AI (Required)
+   GEMINI_API_KEY=your_gemini_api_key_here
 
-1.  **Add Account**: Click "+ Add Account" and enter your IMAP credentials (use App Password for Gmail).
-2.  **View Emails**: Emails will sync automatically. Watch them appear in real-time!
-3.  **Search**: Use the search bar to find emails by keyword (e.g., "AI", "Job").
-4.  **AI Reply**: Open an email and click "✨ Suggest Reply" to generate a context-aware response.
+   # Security
+   ENCRYPTION_KEY=change-this-to-a-secure-32-character-key
+   ```
+   
+   > **Note**: Slack and webhook URLs can now be configured from the frontend Settings page!
 
-## 🧪 Testing
-
-- **Backend Logs**: Check `backend.log` for sync status and AI categorization logs.
-- **AI Reply**: The system uses a predefined "Product Context" to generate relevant replies.
-
----
-Built for ReachInbox Assignment.
-
-4. **Start the backend server**:
+5. **Start the backend server**:
    ```bash
    npm run dev
    ```
 
-5. **Start the frontend** (in a new terminal):
+6. **Start the frontend** (in a new terminal):
    ```bash
    cd frontend
    npm run dev
    ```
 
-6. **Open your browser** to `http://localhost:5173`
+7. **Open your browser** to `http://localhost:5173`
 
-## 📋 Environment Variables
+## 🎯 Usage Guide
 
-Create a `.env` file in the root directory:
+### 1. Adding Email Accounts
 
-```env
-# Server Configuration
-PORT=3000
-FRONTEND_URL=http://localhost:5173
-
-# Elasticsearch
-ELASTICSEARCH_URL=http://localhost:9200
-
-# Google Gemini AI (Required)
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# Notifications (Optional)
-SLACK_WEBHOOK_URL=your_slack_webhook_url_here
-WEBHOOK_URL=your_external_webhook_url_here
-
-# Security
-ENCRYPTION_KEY=change-this-to-a-secure-32-character-key
-```
-
-## 🎯 Usage
-
-### Adding Email Accounts
-
-1. Click the "⚙️ Accounts" button in the header
-2. Click "+ Add Account"
+1. Click the **⚙️ Accounts** button in the header
+2. Click **+ Add Account**
 3. Enter your email credentials:
    - **Email**: your.email@example.com
    - **Password**: Your IMAP password or app-specific password
@@ -149,104 +123,178 @@ ENCRYPTION_KEY=change-this-to-a-secure-32-character-key
    - **Port**: Usually `993` for SSL/TLS
    - **TLS**: Enable for secure connections
 
-**For Gmail users**: You need to create an [App Password](https://myaccount.google.com/apppasswords) instead of your regular password.
+> **For Gmail users**: Create an [App Password](https://myaccount.google.com/apppasswords) instead of using your regular password.
 
-### Viewing and Managing Emails
+### 2. Configuring Integrations
 
-- Emails are automatically synced in real-time
-- Use the search bar to filter by keywords, account, or category
-- Click on any email to view details
-- Use the "✨ Suggest Reply" button to get AI-powered reply suggestions
+1. Click the **🔧 Settings** button in the header
+2. **Slack Webhook URL** (optional):
+   - Get your webhook URL from [Slack Incoming Webhooks](https://api.slack.com/messaging/webhooks)
+   - Paste it in the Slack Webhook field
+   - Receive notifications when emails are marked as "Interested"
 
-## 🏗️ Architecture
+3. **External Webhook URL** (optional):
+   - Enter your automation service webhook URL (Zapier, Make.com, n8n, etc.)
+   - Receives complete email data as JSON payload
+   - Triggered when emails are categorized as "Interested"
 
-```
-┌─────────────────┐      ┌──────────────────┐      ┌─────────────────┐
-│   React UI      │─────▶│  Express Server  │─────▶│  Elasticsearch  │
-│  (Frontend)     │◀─────│   (Backend)      │◀─────│   (Storage)     │
-└─────────────────┘      └──────────────────┘      └─────────────────┘
-                                  │
-                                  ├──────▶ IMAP Servers (Gmail, etc.)
-                                  ├──────▶ Google Gemini AI
-                                  ├──────▶ Slack (Notifications)
-                                  └──────▶ Webhooks (Automation)
-```
+4. Click **💾 Save Settings**
+
+### 3. Managing Emails
+
+- ✅ Emails sync automatically in real-time
+- 🔍 Use the search bar to filter by keywords, account, or category
+- 📧 Click on any email to view full details
+- ✨ Click **Suggest Reply** to get AI-powered response suggestions
+- �️ Categories are assigned automatically by Google Gemini AI
 
 ## 📁 Project Structure
 
 ```
-├── src/                      # Backend source code
-│   ├── server.ts            # Main Express server
-│   ├── imapService.ts       # IMAP connection & sync
-│   ├── elasticsearchService.ts # Email indexing & search
-│   ├── aiCategorizer.ts     # Google Gemini integration
-│   ├── notificationService.ts # Slack & webhooks
-│   └── databaseService.ts   # Account management
-├── frontend/                 # React frontend
+onebox-email-aggregator/
+├── src/                          # Backend source code
+│   ├── server.ts                # Main Express server & API routes
+│   ├── imapService.ts           # IMAP connection & real-time sync
+│   ├── elasticsearchService.ts  # Email indexing & search
+│   ├── aiCategorizer.ts         # Google Gemini AI integration
+│   ├── notificationService.ts   # Slack & webhook notifications
+│   ├── databaseService.ts       # Account management with encryption
+│   └── settingsService.ts       # Integration settings persistence
+├── frontend/                     # React frontend
 │   ├── src/
-│   │   ├── components/      # React components
-│   │   ├── App.tsx          # Main app component
-│   │   ├── api.ts           # API client
-│   │   └── index.css        # Modern design system
+│   │   ├── components/          # React components
+│   │   │   ├── AccountManager.tsx
+│   │   │   ├── EmailList.tsx
+│   │   │   ├── EmailDetail.tsx
+│   │   │   ├── SearchBar.tsx
+│   │   │   ├── Settings.tsx
+│   │   │   └── CategoryBadge.tsx
+│   │   ├── App.tsx              # Main app component
+│   │   ├── api.ts               # API client
+│   │   └── index.css            # Modern design system
 │   └── package.json
-├── docker-compose.yml       # Elasticsearch setup
+├── data/                         # Runtime data (gitignored)
+│   ├── accounts.json            # Encrypted account credentials
+│   └── settings.json            # Integration settings
+├── docker-compose.yml           # Elasticsearch setup
+├── .env.example                 # Environment template
+├── .gitignore
 ├── package.json
 └── README.md
 ```
 
 ## 🔧 API Endpoints
 
-### Accounts
+### Account Management
 - `GET /api/accounts` - List all email accounts
 - `POST /api/accounts` - Add new email account
 - `DELETE /api/accounts/:id` - Remove email account
 
-### Emails
-- `GET /api/emails` - Search emails with filters
-- `GET /api/emails/:id` - Get email details
+### Email Operations
+- `GET /api/emails` - Search emails with filters (query, accountId, category)
+- `GET /api/emails/:id` - Get email details by ID
 - `POST /api/emails/:id/categorize` - Update email category
-- `POST /api/emails/:id/suggest-reply` - Get AI reply suggestion
+- `POST /api/emails/:id/suggest-reply` - Get AI-generated reply suggestion
+
+### Integration Settings
+- `GET /api/settings` - Get current integration settings
+- `POST /api/settings` - Update Slack and webhook URLs
+
+### Health Check
+- `GET /api/health` - Server health status
 
 ## 🎨 Design System
 
-The frontend uses a modern design system featuring:
-- **Vibrant Gradients**: Purple, pink, blue color schemes
+The frontend features a premium, modern design:
+
+- **Vibrant Gradients**: Purple (#667eea) to violet (#764ba2) color schemes
 - **Glassmorphism**: Frosted glass effects with backdrop blur
-- **Dark Mode**: Eye-friendly dark theme
+- **Dark Theme**: Eye-friendly dark mode with deep backgrounds
 - **Smooth Animations**: Fade-in effects and hover transitions
-- **Custom Scrollbars**: Styled for consistency
-- **Responsive Layout**: Works on all screen sizes
+- **Custom Components**: Reusable UI elements with consistent styling
+- **Responsive Layout**: Mobile-friendly design
+- **Custom Scrollbars**: Styled to match the theme
 
 ## 🐛 Troubleshooting
 
-### Elasticsearch connection issues
+### Elasticsearch Connection Issues
 ```bash
 # Check if Elasticsearch is running
 curl http://localhost:9200
 
+# View logs
+docker-compose logs elasticsearch
+
 # Restart Elasticsearch
-docker-compose restart
+docker-compose restart elasticsearch
 ```
 
-### IMAP connection errors
-- Verify your email credentials
-- For Gmail: Use an App Password, not your regular password
-- Check if IMAP is enabled in your email settings
-- Verify the correct IMAP host and port
+### IMAP Connection Errors
+- ✅ Verify your email credentials are correct
+- ✅ For Gmail: Use an App Password, not your regular password
+- ✅ Check if IMAP is enabled in your email provider settings
+- ✅ Verify the correct IMAP host and port (usually imap.gmail.com:993)
+- ✅ Ensure TLS/SSL is enabled
 
-### Frontend not connecting to backend
-- Ensure backend is running on port 3000
-- Check CORS settings if using a different port
-- Verify `VITE_API_URL` in frontend `.env` if needed
+### Frontend Not Connecting to Backend
+- ✅ Ensure backend is running on port 3000
+- ✅ Check browser console for CORS errors
+- ✅ Verify Socket.IO connection in browser DevTools
+- ✅ Check `VITE_API_URL` environment variable if needed
 
-## 📝 License
+### AI Categorization Not Working
+- ✅ Verify `GEMINI_API_KEY` is set correctly in `.env`
+- ✅ Check backend logs for API errors
+- ✅ Ensure you have API quota available on your Gemini account
+
+## 🔒 Security Notes
+
+- Email passwords are encrypted using AES-256 before storage
+- Never commit `.env` files or the `data/` directory to version control
+- Use strong, unique encryption keys in production
+- For Gmail, always use App Passwords instead of your main password
+- HTTPS is recommended for production deployments
+
+## 📝 Environment Variables Reference
+
+| Variable | Required | Description | Default |
+|----------|----------|-------------|---------|
+| `PORT` | No | Backend server port | `3000` |
+| `FRONTEND_URL` | No | Frontend URL for CORS | `http://localhost:5173` |
+| `ELASTICSEARCH_URL` | Yes | Elasticsearch connection URL | `http://localhost:9200` |
+| `GEMINI_API_KEY` | Yes | Google Gemini API key | - |
+| `ENCRYPTION_KEY` | Yes | 32-character encryption key | - |
+
+> **Note**: `SLACK_WEBHOOK_URL` and `WEBHOOK_URL` are now configured via the Settings UI, not environment variables!
+
+## 🚀 Production Deployment
+
+For production deployment:
+
+1. Set up a production Elasticsearch instance (consider Elastic Cloud)
+2. Use environment variables for all sensitive data
+3. Deploy backend to a Node.js hosting platform (Railway, Render, Heroku, etc.)
+4. Deploy frontend to a static hosting service (Vercel, Netlify, etc.)
+5. Configure proper CORS settings
+6. Use HTTPS for all connections
+7. Set up monitoring and logging
+
+## � License
 
 MIT
 
 ## 🤝 Contributing
 
-Contributions welcome! Please open an issue or submit a pull request.
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
-Made with ❤️ using React, Express, Elasticsearch & Google Gemini AI
+**Made with ❤️ using React, Express, Elasticsearch & Google Gemini AI**
+
+For questions or issues, please open an issue on GitHub.

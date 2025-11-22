@@ -147,6 +147,12 @@ function App() {
             >
               ⚙️ Accounts
             </button>
+            <button
+              className={view === 'settings' ? 'btn btn-primary' : 'btn btn-outline'}
+              onClick={() => setView('settings')}
+            >
+              🔧 Settings
+            </button>
           </div>
         </div>
       </header>
@@ -159,6 +165,8 @@ function App() {
             onAddAccount={handleAddAccount}
             onDeleteAccount={handleDeleteAccount}
           />
+        ) : view === 'settings' ? (
+          <Settings />
         ) : (
           <>
             <SearchBar accounts={accounts} onSearch={handleSearch} />
