@@ -147,12 +147,12 @@ export const imapInit = async (account: EmailAccount) => {
         const lock = await client.getMailboxLock('INBOX');
 
         try {
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-            // Search for emails from last 30 days
+            // Search for emails from last 7 days
             const messages = client.fetch(
-                { since: thirtyDaysAgo },
+                { since: sevenDaysAgo },
                 { envelope: true, bodyStructure: true, source: true }
             );
 
