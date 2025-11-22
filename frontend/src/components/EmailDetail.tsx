@@ -10,9 +10,11 @@ interface EmailDetailProps {
 export const EmailDetail: React.FC<EmailDetailProps> = ({ email, onSuggestReply }) => {
     const [reply, setReply] = useState('');
     const [loadingReply, setLoadingReply] = useState(false);
+    const [copied, setCopied] = useState(false);
 
     const handleSuggestReply = async () => {
         setLoadingReply(true);
+        setReply(''); // Clear previous reply
         try {
             const suggestedReply = await onSuggestReply(email.id);
             setReply(suggestedReply);
@@ -21,6 +23,16 @@ export const EmailDetail: React.FC<EmailDetailProps> = ({ email, onSuggestReply 
             alert('Failed to generate reply suggestion');
         } finally {
             setLoadingReply(false);
+        }
+    };
+
+    const handleCopyReply = async () => {
+        try {
+            await navigator.clipboard.writeText(reply);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (error) {
+            console.error('Failed to copy:', error);
         }
     };
 
@@ -73,26 +85,56 @@ export const EmailDetail: React.FC<EmailDetailProps> = ({ email, onSuggestReply 
                     className="btn btn-primary"
                     onClick={handleSuggestReply}
                     disabled={loadingReply}
+                    style={{ position: 'relative' }}
                 >
                     {loadingReply ? (
-                        <>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
                             <div className="spinner" style={{ width: '16px', height: '16px', borderWidth: '2px' }}></div>
-                            Generating...
-                        </>
+                            Generating AI Reply...
+                        </span>
                     ) : (
                         '✨ Suggest Reply'
                     )}
                 </button>
 
                 {reply && (
-                    <div className="mt-lg" style={{
+                    <div className="animate-fade-in mt-lg" style={{
                         padding: 'var(--spacing-lg)',
                         background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
                         borderRadius: 'var(--radius-md)',
                         border: '1px solid rgba(102, 126, 234, 0.3)',
+                        position: 'relative',
                     }}>
-                        <p className="font-semibold mb-sm">AI Suggested Reply:</p>
-                        <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{reply}</p>
+                        <div className="flex justify-between items-center mb-md">
+                            <p className="font-semibold" style={{
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                backgroundClip: 'text',
+                            }}>
+                                🤖 AI Suggested Reply
+                            </p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+                                <span className="text-xs text-muted">{reply.length} characters</span>
+                                <button
+                                    onClick={handleCopyReply}
+                                    className="btn btn-secondary"
+                                    style={{
+                                        padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                        fontSize: '0.875rem',
+                                    }}
+                                >
+                                    {copied ? '✓ Copied!' : '📋 Copy'}
+                                </button>
+                            </div>
+                        </div>
+                        <p style={{
+                            whiteSpace: 'pre-wrap',
+                            lineHeight: 1.6,
+                            color: 'var(--text-primary)',
+                        }}>
+                            {reply}
+                        </p>
                     </div>
                 )}
             </div>

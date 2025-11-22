@@ -67,26 +67,42 @@ export const suggestReply = async (email: {
     category?: string;
 }): Promise<string> => {
     try {
-        const prompt = `You are an intelligent email assistant for "Onebox".
-        
-CONTEXT:
+        const prompt = `You are an intelligent email assistant for "Onebox Email Aggregator".
+
+PRODUCT CONTEXT:
 ${KNOWLEDGE_BASE}
 
-INSTRUCTION:
-Generate a professional reply to the email below based on the provided CONTEXT.
-- If the sender is interested, propose a meeting using the meeting link.
-- If they are asking about features, mention relevant Onebox features.
-- Keep it under 100 words.
+YOUR TASK:
+Analyze the email below and generate a professional, personalized reply that:
+1. DIRECTLY ADDRESSES the sender's specific questions or points raised
+2. REFERENCES specific details from their email (show you read it!)
+3. Provides relevant information about Onebox features if they asked
+4. Proposes a meeting if they show interest
+5. Keeps a professional yet friendly tone
+6. Stays under 120 words
 
-EMAIL DATA:
-Category: ${email.category || 'Unknown'}
+CRITICAL: Each reply must be UNIQUE and specifically tailored to THIS email's content. Do NOT use generic templates.
+
+EMAIL TO REPLY TO:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 From: ${email.from}
 Subject: ${email.subject}
-Body: ${email.body.substring(0, 1500)}
+Category: ${email.category || 'Unknown'}
 
-REPLY:`;
+Message:
+${email.body.substring(0, 2000)}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-        const result = await model.generateContent(prompt);
+YOUR PERSONALIZED REPLY:`;
+
+        const result = await model.generateContent({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: {
+                temperature: 0.8, // Higher temperature for more varied responses
+                maxOutputTokens: 250,
+            },
+        });
+
         return result.response.text().trim();
     } catch (error) {
         console.error('Error generating reply:', error);
