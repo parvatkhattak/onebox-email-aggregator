@@ -2,7 +2,6 @@
 
 A powerful, AI-driven email aggregation platform that synchronizes multiple IMAP accounts in real-time, categorizes emails using Google Gemini AI, and provides smart reply suggestions.
 
-![Onebox Dashboard](https://via.placeholder.com/800x400?text=Onebox+Dashboard+Preview)
 
 ## ✨ Key Features
 
@@ -112,7 +111,9 @@ npm run dev
 
 ## 🚢 Deployment
 
-### Backend
+For a detailed, step-by-step guide on deploying this application to a VPS (DigitalOcean, AWS, etc.) using Docker Compose, please read our **[Deployment Guide](DEPLOYMENT.md)**.
+
+### Quick Build
 1. Build the project: `npm run build`
 2. Start production server: `npm start`
 3. Ensure Elasticsearch is running and accessible.
