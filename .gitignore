@@ -10,8 +10,10 @@ frontend/package-lock.json
 .env.development.local
 .env.test.local
 .env.production.local
+.env.example
 frontend/.env
 frontend/.env.local
+frontend/.env.example
 
 # Data files (contains sensitive account information)
 data/
