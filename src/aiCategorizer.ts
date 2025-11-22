@@ -2,7 +2,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
 
 export type EmailCategory = 'Interested' | 'Meeting Booked' | 'Not Interested' | 'Spam' | 'Out of Office';
 
@@ -80,6 +80,7 @@ Analyze the email below and generate a professional, personalized reply that:
 4. Proposes a meeting if they show interest
 5. Keeps a professional yet friendly tone
 6. Stays under 120 words
+7. VARIES sentence structure and vocabulary to sound natural and unique
 
 CRITICAL: Each reply must be UNIQUE and specifically tailored to THIS email's content. Do NOT use generic templates.
 
@@ -93,17 +94,30 @@ Message:
 ${email.body.substring(0, 2000)}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[System Note: Generate a unique response. Random Seed: ${Date.now()}-${Math.random()}]
+
 YOUR PERSONALIZED REPLY:`;
+
+        console.log('--- AI Prompt ---');
+        console.log(prompt);
+        console.log('-----------------');
 
         const result = await model.generateContent({
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
             generationConfig: {
-                temperature: 0.8, // Higher temperature for more varied responses
+                temperature: 0.9, // Maximum creativity
+                topK: 40,
+                topP: 0.95,
                 maxOutputTokens: 250,
             },
         });
 
-        return result.response.text().trim();
+        const responseText = result.response.text().trim();
+        console.log('--- AI Response ---');
+        console.log(responseText);
+        console.log('-------------------');
+
+        return responseText;
     } catch (error) {
         console.error('Error generating reply:', error);
         return 'Thank you for your email. I will get back to you shortly.';
